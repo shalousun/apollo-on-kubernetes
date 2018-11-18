@@ -9,9 +9,9 @@ metadata:
 data:
   application-github.properties: |
     spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-dev-env.sre:3306/DevApolloConfigDB?characterEncoding=utf8
-    spring.datasource.username = FillInCorrectUser
-    spring.datasource.password = FillInCorrectPassword
-    eureka.service.url = http://statefulset-apollo-config-server-dev-0.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-1.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-2.service-apollo-meta-server-dev:8080/eureka/
+    spring.datasource.username = root
+    spring.datasource.password = root
+    eureka.service.url = http://statefulset-apollo-config-server-dev-0.service-apollo-meta-server-dev:8080/eureka/
 
 ---
 kind: Service
@@ -40,7 +40,7 @@ metadata:
   labels:
     app: deployment-apollo-admin-server-dev
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: pod-apollo-admin-server-dev
@@ -55,7 +55,7 @@ spec:
         app: pod-apollo-admin-server-dev
     spec:
       nodeSelector:
-        node: "apollo"
+        apollo: apollo
       
       volumes:
         - name: volume-configmap-apollo-admin-server-dev
@@ -66,13 +66,13 @@ spec:
                 path: application-github.properties
       
       initContainers:
-        - image: alpine-bash:3.8
+        - image: registry.cn-hangzhou.aliyuncs.com/shalousun/alpine-zh:3.8
           name: check-service-apollo-config-server-dev
           command: ['bash', '-c', "curl --connect-timeout 2 --max-time 5 --retry 60 --retry-delay 1 --retry-max-time 120 service-apollo-config-server-dev.sre:8080"]
       imagePullSecrets:
       - name: harbor-key
       containers:
-        - image: apollo-admin-server:v1.0.0
+        - image: docker-server.com/library/apollo-admin-server:v1.0.2
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
