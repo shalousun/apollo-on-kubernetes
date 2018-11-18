@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # apollo version
-VERSION=v1.0.0
+VERSION=v1.1.2
 
 APP_NAME=apollo-portal-server
 
