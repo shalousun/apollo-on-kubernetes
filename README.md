@@ -1,5 +1,5 @@
 # 使用方法
-
+本文档基于apollo官方的文档，由于在做apollo在k8s实践时官方文档操作和镜像配置代码在一些k8s版本上并不能跑通，因此需要去自己做一些修改。
 ## 一、构建镜像
 
 ### 1.1 获取 apollo 压缩包
@@ -42,7 +42,9 @@ docker build -t apollo-config-server:v1.0.0 .
 ```
 
 push image <br/>
-将 image push 到你的 docker registry, 例如 vmware harbor
+将 image push 到你的 docker registry, 例如 vmware harbor<br/>
+**注意：** 本实例在官方的基础上加了一个build-and-push.sh，该脚本用于构建和推送镜像到docker仓库，里面是基于harbor写的，
+对于其他的镜像仓库或者阿里云镜像仓库都只需稍微调整即可完成。
 
 ## 二、Deploy apollo on kubernetes
 
