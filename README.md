@@ -210,7 +210,10 @@ data:
 - startup-kubernetes.sh脚本需要在构建镜像前赋予执行权限和脚本格式化【windows换行符】
 - 当关于执行权限也可能修改Dockerfile的CMD命令
 - 如果修改apollo在k8s部署配置yml文件中对alpine:3.8的依赖，该镜像无论如何都要做修改，即便采用官方提供的alpine-bash-3.8-image构建出镜像，
-但是通常情况下镜像都会上传到harbor这样的镜像仓库，最后的镜像名称也不是alpine:3.8，这里我提供了一个阿里云的镜像
+但是通常情况下镜像都会上传到harbor这样的镜像仓库，最后的镜像名称也不是alpine:3.8，当然本项目中已经对官方的部署文档做了修改，已经依赖于我在阿里云构建的镜像
 ```
 registry.cn-hangzhou.aliyuncs.com/shalousun/alpine-zh:3.8
 ```
+- 官方的kubectl-apply部署脚本文件路径存在问题，需要修改文件中apply命名的文件，给出具体的文件路径，本项目中已经完成修改。
+- 官方提供了k8s部署文件yml中提供了四套环境的配置，在部署中可以根据自己的实际情况在选择，可以只部署一套、两套都行，如果不是
+全套环境部署，则需要修改yml中的eureka.service.url配置，去除不需要的环境配置。
