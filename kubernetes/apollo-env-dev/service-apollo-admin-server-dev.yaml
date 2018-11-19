@@ -72,7 +72,7 @@ spec:
       imagePullSecrets:
       - name: harbor-key
       containers:
-        - image: docker-server.com/library/apollo-admin-server:v1.0.2
+        - image: docker-server.com/library/apollo-admin-server:v1.1.2
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent

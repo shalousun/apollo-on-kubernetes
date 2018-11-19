@@ -121,7 +121,7 @@ spec:
       imagePullSecrets:
       - name: harbor-key
       containers:
-        - image: docker-server.com/library/apollo-portal-server:v1.0.0    # 更改为你的 docker registry 下的 image
+        - image: docker-server.com/library/apollo-portal-server:v1.1.2    # 更改为你的 docker registry 下的 image
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
