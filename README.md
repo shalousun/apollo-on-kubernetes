@@ -202,3 +202,15 @@ data:
 
 ### 方式二：修改数据表 ApolloConfigDB.ServerConfig
 修改数据库表 ApolloConfigDB.ServerConfig的 eureka.service.url。
+
+# Apollo官方配置和部署的一些注意事项
+官方的脚本源码拉取下来后，如果是windows系统上传到服务，里面的一些脚本上传到服务器后，脚本中可能会有windows系统
+的特殊换行符，脚本也没有可执行权限，这在构建镜像的时候是没办法发现的，当使用k8s部署后就会发现容器没法启动。
+
+- startup-kubernetes.sh脚本需要在构建镜像前赋予执行权限和脚本格式化【windows换行符】
+- 当关于执行权限也可能修改Dockerfile的CMD命令
+- 如果修改apollo在k8s部署配置yml文件中对alpine:3.8的依赖，该镜像无论如何都要做修改，即便采用官方提供的alpine-bash-3.8-image构建出镜像，
+但是通常情况下镜像都会上传到harbor这样的镜像仓库，最后的镜像名称也不是alpine:3.8，这里我提供了一个阿里云的镜像
+```
+registry.cn-hangzhou.aliyuncs.com/shalousun/alpine-zh:3.8
+```
