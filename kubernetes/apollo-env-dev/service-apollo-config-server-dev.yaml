@@ -11,8 +11,7 @@ data:
     spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-dev-env.sre:3306/DevApolloConfigDB?characterEncoding=utf8
     spring.datasource.username = root
     spring.datasource.password = root
-    eureka.service.url = http://statefulset-apollo-config-server-dev-0.service-apollo-meta-server-dev:8080/eureka/
-
+    eureka.service.url = http://statefulset-apollo-config-server-dev-0.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-1.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-2.service-apollo-meta-server-dev:8080/eureka/
 ---
 kind: Service
 apiVersion: v1
@@ -73,7 +72,7 @@ spec:
         app: pod-apollo-config-server-dev
     spec:
       nodeSelector:
-        apollo: apollo
+        node: "apollo"
 
       volumes:
         - name: volume-configmap-apollo-config-server-dev
@@ -85,10 +84,10 @@ spec:
       imagePullSecrets:
       - name: harbor-key
       containers:
-        - image: docker-server.com/library/apollo-config-server:v1.1.2
+        - image: registry.cn-shanghai.aliyuncs.com/shalousun/apollo-config-server:v1.2.1
           securityContext:
             privileged: true
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: container-apollo-config-server-dev
           ports:
             - protocol: TCP

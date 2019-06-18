@@ -24,8 +24,7 @@ metadata:
 subsets:
   - addresses:
       # 更改为你的 mysql addresses, 例如 1.1.1.1
-      # 其中 1.1.1.1、2.2.2.2、3.3.3.3 为你的 mysql 集群, 例如 MySQL-Galera-WSrep 或 TiDB
-      - ip: 192.168.237.1
+      - ip: your-mysql-addresses
     ports:
       - protocol: TCP
         port: 3306
@@ -46,6 +45,9 @@ data:
     spring.datasource.password = root
   apollo-env.properties: |
     dev.meta=http://service-apollo-config-server-dev.sre:8080
+    fat.meta=http://service-apollo-config-server-test-alpha.sre:8080
+    uat.meta=http://service-apollo-config-server-test-beta.sre:8080
+    pro.meta=http://service-apollo-config-server-prod.sre:8080
 
 ---
 kind: Service
@@ -77,7 +79,7 @@ metadata:
     app: deployment-apollo-portal-server
 spec:
   # 3 个实例
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: pod-apollo-portal-server
@@ -92,7 +94,7 @@ spec:
         app: pod-apollo-portal-server
     spec:
       nodeSelector:
-        apollo: apollo
+        node: "apollo"
       
       volumes:
         - name: volume-configmap-apollo-portal-server
@@ -121,7 +123,7 @@ spec:
       imagePullSecrets:
       - name: harbor-key
       containers:
-        - image: docker-server.com/library/apollo-portal-server:v1.1.2    # 更改为你的 docker registry 下的 image
+        - image: registry.cn-shanghai.aliyuncs.com/shalousun/apollo-portal-server:    # 更改为你的 docker registry 下的 image
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent

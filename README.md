@@ -1,5 +1,5 @@
 # 使用方法
-本文档基于apollo官方的文档，由于在做apollo在k8s实践时官方文档操作和镜像配置代码在一些k8s版本上并不能跑通，因此需要去自己做一些修改。
+
 ## 一、构建镜像
 
 ### 1.1 获取 apollo 压缩包
@@ -18,6 +18,8 @@ apollo-configservice-1.0.0-github.zip <br/>
 获取 apollo-configservice-1.0.0.jar, 重命名为 apollo-configservice.jar, 放到 scripts/apollo-on-kubernetes/apollo-config-server
 
 ### 1.3 build image
+需要分别为alpine-bash-3.8-image，apollo-config-server，apollo-admin-server和apollo-portal-server构建镜像。
+
 以 build apollo-config-server image 为例, 其他类似
 
 ```bash
@@ -42,9 +44,7 @@ docker build -t apollo-config-server:v1.0.0 .
 ```
 
 push image <br/>
-将 image push 到你的 docker registry, 例如 vmware harbor<br/>
-**注意：** 本实例在官方的基础上加了一个build-and-push.sh，该脚本用于构建和推送镜像到docker仓库，里面是基于harbor写的，
-对于其他的镜像仓库或者阿里云镜像仓库都只需稍微调整即可完成。
+将 image push 到你的 docker registry, 例如 vmware harbor
 
 ## 二、Deploy apollo on kubernetes
 
@@ -63,7 +63,7 @@ MySQL 部署步骤略
 
 示例假设你有 4 台 kubernetes node 来部署 apollo, apollo 开启了 4 个环境, 即 dev、test-alpha、test-beta、prod
 
-按照 scripts/apollo-on-kubernetes/kubernetes/kubectl-apply.sh 文件的内容部署 apollo 即可
+按照 scripts/apollo-on-kubernetes/kubernetes/kubectl-apply.sh 文件的内容部署 apollo 即可，注意需要按照实际情况修改对应配置文件中的数据库连接信息、eureka.service.url、replicas、nodeSelector、镜像信息等。
 
 ```bash
 scripts/apollo-on-kubernetes/kubernetes$ cat kubectl-apply.sh
@@ -71,24 +71,24 @@ scripts/apollo-on-kubernetes/kubernetes$ cat kubectl-apply.sh
 kubectl create namespace sre
 
 # dev-env
-kubectl apply -f service-mysql-for-apollo-dev-env.yaml --record && \
-kubectl apply -f service-apollo-config-server-dev.yaml --record && \
-kubectl apply -f service-apollo-admin-server-dev.yaml --record
+kubectl apply -f apollo-env-dev/service-mysql-for-apollo-dev-env.yaml --record && \
+kubectl apply -f apollo-env-dev/service-apollo-config-server-dev.yaml --record && \
+kubectl apply -f apollo-env-dev/service-apollo-admin-server-dev.yaml --record
 
 # fat-env(test-alpha-env)
-kubectl apply -f service-mysql-for-apollo-test-alpha-env.yaml --record && \
-kubectl apply -f service-apollo-config-server-test-alpha.yaml --record && \
-kubectl apply -f service-apollo-admin-server-test-alpha.yaml --record
+kubectl apply -f apollo-env-test-alpha/service-mysql-for-apollo-test-alpha-env.yaml --record && \
+kubectl apply -f apollo-env-test-alpha/service-apollo-config-server-test-alpha.yaml --record && \
+kubectl apply -f apollo-env-test-alpha/service-apollo-admin-server-test-alpha.yaml --record
 
 # uat-env(test-beta-env)
-kubectl apply -f service-mysql-for-apollo-test-beta-env.yaml --record && \
-kubectl apply -f service-apollo-config-server-test-beta.yaml --record && \
-kubectl apply -f service-apollo-admin-server-test-beta.yaml --record
+kubectl apply -f apollo-env-test-beta/service-mysql-for-apollo-test-beta-env.yaml --record && \
+kubectl apply -f apollo-env-test-beta/service-apollo-config-server-test-beta.yaml --record && \
+kubectl apply -f apollo-env-test-beta/service-apollo-admin-server-test-beta.yaml --record
 
 # prod-env
-kubectl apply -f service-mysql-for-apollo-prod-env.yaml --record && \
-kubectl apply -f service-apollo-config-server-prod.yaml --record && \
-kubectl apply -f service-apollo-admin-server-prod.yaml --record
+kubectl apply -f apollo-env-prod/service-mysql-for-apollo-prod-env.yaml --record && \
+kubectl apply -f apollo-env-prod/service-apollo-config-server-prod.yaml --record && \
+kubectl apply -f apollo-env-prod/service-apollo-admin-server-prod.yaml --record
 
 # portal
 kubectl apply -f service-apollo-portal-server.yaml --record
@@ -202,18 +202,3 @@ data:
 
 ### 方式二：修改数据表 ApolloConfigDB.ServerConfig
 修改数据库表 ApolloConfigDB.ServerConfig的 eureka.service.url。
-
-# Apollo官方配置和部署的一些注意事项
-官方的脚本源码拉取下来后，如果是windows系统上传到服务，里面的一些脚本上传到服务器后，脚本中可能会有windows系统
-的特殊换行符，脚本也没有可执行权限，这在构建镜像的时候是没办法发现的，当使用k8s部署后就会发现容器没法启动。
-
-- startup-kubernetes.sh脚本需要在构建镜像前赋予执行权限和脚本格式化【windows换行符】
-- 当关于执行权限也可能修改Dockerfile的CMD命令
-- 如果修改apollo在k8s部署配置yml文件中对alpine:3.8的依赖，该镜像无论如何都要做修改，即便采用官方提供的alpine-bash-3.8-image构建出镜像，
-但是通常情况下镜像都会上传到harbor这样的镜像仓库，最后的镜像名称也不是alpine:3.8，当然本项目中已经对官方的部署文档做了修改，已经依赖于我在阿里云构建的镜像
-```
-registry.cn-hangzhou.aliyuncs.com/shalousun/alpine-zh:3.8
-```
-- 官方的kubectl-apply部署脚本文件路径存在问题，需要修改文件中apply命名的文件，给出具体的文件路径，本项目中已经完成修改。
-- 官方提供了k8s部署文件yml中提供了四套环境的配置，在部署中可以根据自己的实际情况在选择，可以只部署一套、两套都行，如果不是
-全套环境部署，则需要修改yml中的eureka.service.url配置，去除不需要的环境配置。

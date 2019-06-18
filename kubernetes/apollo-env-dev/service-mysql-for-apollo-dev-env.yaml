@@ -23,7 +23,7 @@ metadata:
   name: service-mysql-for-apollo-dev-env
 subsets:
   - addresses:
-      - ip: 192.168.237.1
+      - ip: your-mysql-addresses
     ports:
       - protocol: TCP
         port: 3306
